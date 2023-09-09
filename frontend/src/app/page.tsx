@@ -8,6 +8,23 @@ import { Buffer } from "buffer";
 export default function Home() {
   const [message, setMessage] = useState("initial");
 
+  const toBase64 = (file: File) => {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+  
+      fileReader.readAsDataURL(file);
+  
+      fileReader.onload = () => {
+        resolve(fileReader.result);
+      };
+  
+      fileReader.onerror = (error) => {
+        reject(error);
+      };
+    });
+  };
+
+
   const handleUploadClick = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const file = e.target.files[0];
@@ -17,14 +34,18 @@ export default function Home() {
     formData.append("file", file);
     // let s = Buffer.from(formData.toString("base64");
     console.log(file);
-    // console.log(formData.keys);
+
+    const base64 = await toBase64(file);
+
+
+    console.log(base64);
 
     try {
       setMessage("uploading...");
       await axios
         .post(
           "https://h5g5tm8jr0.execute-api.ap-northeast-1.amazonaws.com/v1/upload",
-          formData,
+         base64,
           {
             headers: {
               "content-type": "multipart/form-data",
@@ -32,8 +53,8 @@ export default function Home() {
           }
         )
         .then((response) => {
-          console.log(response.data);
-          setMessage("completed");
+          console.log(response);
+          setMessage(response.data.cloudfront);
         });
     } catch (e) {
       console.error(e);

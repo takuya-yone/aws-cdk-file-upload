@@ -8,11 +8,13 @@ import { aws_apigateway as apigw } from "aws-cdk-lib";
 import { ScopedAws } from "aws-cdk-lib";
 import { aws_s3 as s3 } from "aws-cdk-lib";
 import { aws_iam as iam } from "aws-cdk-lib";
+import { aws_cloudfront as cloudfront } from "aws-cdk-lib";
 
 import * as path from "path";
 
 export interface ApiGwConstructProps extends cdk.StackProps {
   s3bucket: s3.Bucket;
+  cloudfront: cloudfront.Distribution;
 }
 
 export class ApiGwConstruct extends Construct {
@@ -63,6 +65,7 @@ export class ApiGwConstruct extends Construct {
         // insightsVersion: lambda.LambdaInsightsVersion.VERSION_1_0_229_0,
         environment: {
           S3_BUCKET_NAME: props.s3bucket.bucketName,
+          CLOUDFRONT_URL: props.cloudfront.domainName,
         },
       }
     );

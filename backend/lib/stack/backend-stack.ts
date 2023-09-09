@@ -11,6 +11,7 @@ export class FileUpBackendStack extends cdk.Stack {
     const storageConstruct = new StorageConstruct(this, "StorageConstruct");
     const apigweConstruct = new ApiGwConstruct(this, "ApiGwConstruct", {
       s3bucket: storageConstruct.s3bucket,
+      cloudfront: storageConstruct.cloudfront,
     });
   }
 }

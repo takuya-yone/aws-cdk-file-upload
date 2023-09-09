@@ -2,8 +2,6 @@
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { Logger, injectLambdaContext } from "@aws-lambda-powertools/logger";
-import middy from "@middy/core";
-import multipart from "aws-lambda-multipart-parser";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { v4 as uuidv4 } from "uuid";
 
@@ -15,27 +13,46 @@ export const handler = async (event: APIGatewayProxyEvent) => {
   //   console.log(event);
 
   // 受け取ったevent.bodyがbase64エンコードされているのでデコード
-  const event2: APIGatewayProxyEvent = event;
   //   event2.body = Buffer.from(event.body!).toString("binary");
 
   // multipart/form-dataをパースする
   //   const multipartBuffer = multipart.parse(event2, true);
 
-  console.log(event2);
-  console.log(event2.body);
+  // console.log(event.body);
+
+  const encodedData = event.body || "";
+
+  // data:image/png;base64,iVBORw0KGgoAAAANSUh......
+  // ↓
+  // iVBORw0KGgoAAAANSUh......
+  const fileData = encodedData.replace(/^data:\w+\/\w+;base64,/, "");
+
+  // const decodedFile = new Buffer(fileData, "base64");
+  const decodedFile = Buffer.from(fileData, "base64");
+
+  // console.log(decodedFile);
+  // console.log(decodedFile1);
+
+  const fileExtension = encodedData
+    .toString()
+    .slice(encodedData.indexOf("/") + 1, encodedData.indexOf(";"));
+
+  // console.log(event2.body);
   //   console.log(multipartBuffer);
   //   console.log(multipartBuffer.file.content);
 
+  // console.log(decodedFile);
+  console.log(fileExtension);
+
   const s3 = new S3Client({});
 
-  const filename = `${uuidv4()}.png`;
-  console.log(filename);
+  const filename = `${uuidv4()}.${fileExtension}`;
 
   const response = await s3.send(
     new PutObjectCommand({
       Bucket: process.env.S3_BUCKET_NAME,
       Key: filename,
-      Body: event2.body!,
+      Body: decodedFile,
     })
   );
 
@@ -53,6 +70,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
     body: JSON.stringify({
       filename: filename,
       filepath: `${process.env.S3_BUCKET_NAME}/${filename}`,
+      cloudfront: `https://${process.env.CLOUDFRONT_URL}/${filename}`,
     }),
   };
 };
