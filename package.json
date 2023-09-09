@@ -1,0 +1,9 @@
+{
+    "name": "aws-cdk-file-upload",
+    "license": "UNLICENSED",
+    "private": true,
+    "workspaces": [
+        "frontend",
+        "backend"
+    ]
+}
