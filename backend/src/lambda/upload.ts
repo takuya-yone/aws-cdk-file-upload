@@ -44,6 +44,15 @@ export const handler = async (event: APIGatewayProxyEvent) => {
   // console.log(decodedFile);
   console.log(fileExtension);
 
+  const contentType =
+    fileExtension === "png"
+      ? "image/png"
+      : fileExtension === "jpeg"
+      ? "image/jpeg"
+      : fileExtension === "jpg"
+      ? "image/jpeg"
+      : "";
+
   const s3 = new S3Client({});
 
   const filename = `${uuidv4()}.${fileExtension}`;
@@ -53,6 +62,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
       Bucket: process.env.S3_BUCKET_NAME,
       Key: filename,
       Body: decodedFile,
+      ContentType: contentType,
     })
   );
 
