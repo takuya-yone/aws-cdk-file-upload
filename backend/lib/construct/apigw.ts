@@ -73,6 +73,10 @@ export class ApiGwConstruct extends Construct {
       deployOptions: {
         stageName: "v1",
       },
+      defaultCorsPreflightOptions: {
+        allowOrigins: apigw.Cors.ALL_ORIGINS,
+        allowMethods: apigw.Cors.ALL_METHODS, // this is also the default
+      },
     });
 
     //API Gatewayにリクエスト先のリソースを追加
