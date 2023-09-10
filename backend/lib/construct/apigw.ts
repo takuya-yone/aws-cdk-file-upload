@@ -61,6 +61,7 @@ export class ApiGwConstruct extends Construct {
         retryAttempts: 0,
         logRetention: logs.RetentionDays.THREE_DAYS,
         role: fileUploadFunctinRole,
+        architecture: lambda.Architecture.ARM_64,
 
         // insightsVersion: lambda.LambdaInsightsVersion.VERSION_1_0_229_0,
         environment: {
