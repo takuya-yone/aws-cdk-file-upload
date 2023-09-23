@@ -9,6 +9,8 @@ import { ScopedAws } from "aws-cdk-lib";
 import { aws_s3 as s3 } from "aws-cdk-lib";
 import { aws_iam as iam } from "aws-cdk-lib";
 import { aws_cloudfront as cloudfront } from "aws-cdk-lib";
+import { aws_sns as sns } from "aws-cdk-lib";
+import { aws_lambda_destinations as destinations } from "aws-cdk-lib";
 
 import * as path from "path";
 
@@ -33,6 +35,8 @@ export class ApiGwConstruct extends Construct {
         }),
       ],
     });
+
+    const myTopic = new sns.Topic(this, "Topic");
 
     const fileUploadFunctinRole = new iam.Role(this, "FileUploadFunctinRole", {
       roleName: "FileUploadFunctinRole",
@@ -62,7 +66,7 @@ export class ApiGwConstruct extends Construct {
         logRetention: logs.RetentionDays.THREE_DAYS,
         role: fileUploadFunctinRole,
         architecture: lambda.Architecture.ARM_64,
-
+        onSuccess: new destinations.SnsDestination(myTopic),
         // insightsVersion: lambda.LambdaInsightsVersion.VERSION_1_0_229_0,
         environment: {
           S3_BUCKET_NAME: props.s3bucket.bucketName,
